@@ -59,11 +59,6 @@ class SyncORM:
             session.commit()
 
     @staticmethod
-    # def clean_input(user_input: str):
-    #     no_repeats = re.sub(r'(.)\1+', r'\1', user_input)
-    #     clean_input = re.sub(r'[A-Za-z]', '', no_repeats)
-    #     return no_repeats
-    @staticmethod
     def get_sales_by_publisher(publisher_name: str):
         with session_factory() as session:
             try:
