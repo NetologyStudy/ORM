@@ -1,4 +1,5 @@
 from orm import SyncORM
+
 SyncORM.create_tables()
 SyncORM.insert_publisher()
 SyncORM.insert_book()
@@ -8,7 +9,7 @@ SyncORM.insert_sale()
 
 if __name__ == "__main__":
     # Информация только для Пушкина, поэтому используем имя - Пушкин:)
-    author_name = input("Введите имя автора (издателя): ").strip()
+    author_name = input("Введите имя автора или его идентификатор: ")
     sales_data = SyncORM.get_sales_by_publisher(author_name)
 
     if sales_data:

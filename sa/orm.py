@@ -1,3 +1,4 @@
+import re
 from sqlalchemy import or_
 from models import PublisherORM, BookORM, ShopORM, StockORM, SaleORM
 from database import sync_engine, session_factory, Base
@@ -58,8 +59,21 @@ class SyncORM:
             session.commit()
 
     @staticmethod
+    # def clean_input(user_input: str):
+    #     no_repeats = re.sub(r'(.)\1+', r'\1', user_input)
+    #     clean_input = re.sub(r'[A-Za-z]', '', no_repeats)
+    #     return no_repeats
+    @staticmethod
     def get_sales_by_publisher(publisher_name: str):
         with session_factory() as session:
+            try:
+                publisher_id = int(publisher_name)
+                filter_condition = PublisherORM.id == publisher_id
+            except ValueError:
+                no_repeats = re.sub(r'(.+?)\1+', r'\1', publisher_name)
+                clean_publisher = re.sub(r'[^А-Яа-я]', '', no_repeats)
+                filter_condition = or_(PublisherORM.name.ilike(f"%{clean_publisher}%"),
+                                       PublisherORM.name == clean_publisher)
             query = (
                 session.query(
                     BookORM.title.label("Название книги"),
@@ -71,15 +85,7 @@ class SyncORM:
                 .join(StockORM.book)
                 .join(StockORM.shop)
                 .join(BookORM.publisher)
-                .filter(
-                    or_(
-                        PublisherORM.name.ilike(f"%{publisher_name}%"),  # Поиск по части имени
-                        PublisherORM.name == publisher_name  # Точное совпадение
-                    )
-                )
+                .filter(filter_condition)
             )
-
             result = query.all()
             return result
-
-
